@@ -80,6 +80,11 @@ export class FilesService extends ItemsService<File> {
 
 		const disk = storage.location(payload.storage);
 
+		// `createOne` requires a type, so fall back to a generic one before the record is created
+		if (!payload.type) {
+			payload.type = 'application/octet-stream';
+		}
+
 		// If no folder is specified, we'll use the default folder from the settings if it exists
 		if ('folder' in payload === false) {
 			const settings = await this.knex.select('storage_default_folder').from('directus_settings').first();
@@ -112,10 +117,6 @@ export class FilesService extends ItemsService<File> {
 
 		// Temp filename is used for replacements
 		const tempFilenameDisk = 'temp_' + filenameDisk;
-
-		if (!payload.type) {
-			payload.type = 'application/octet-stream';
-		}
 
 		// Used to clean up if something goes wrong
 		const cleanUp = async () => {
